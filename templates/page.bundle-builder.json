@@ -9,12 +9,12 @@
  */
 {
   "sections": {
-    "recipe-detail": {
-      "type": "recipe-detail",
+    "bundle-builder": {
+      "type": "bundle-builder",
       "settings": {}
     }
   },
   "order": [
-    "recipe-detail"
+    "bundle-builder"
   ]
 }

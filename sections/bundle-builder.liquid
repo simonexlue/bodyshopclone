@@ -1,0 +1,54 @@
+{% assign bundles = shop.metaobjects.bundle_template.values %}
+<div class="bundle-builder-root">
+  <h1>Build Your Custom Starter Kit</h1>
+  
+  {% if bundles.size == 0 %}
+    <p>No bundles found.</p>
+  {% else %}
+    <ul class="bundle-list">
+      {% for bundle in bundles %}
+        <li 
+          class="bundle-card" 
+          data-bundle-id="{{ bundle.id }}"
+          data-max-items="{{ bundle.max_items }}"
+          data-discount="{{ bundle.bundle_discount_percent }}"
+          >
+          {% if bundle.bundle_image != blank %}
+            <img src="{{ bundle.bundle_image | image_url: width: 300}}"
+            alt="{{ bundle.bundle_name }}"
+            width="300"
+            height="auto"
+            />
+          {% endif%}
+
+          <h2>{{ bundle.bundle_name }}</h2>
+
+          {% if bundle.bundle_discount_percent > 0 %}
+            <p class="bundle-discount">Save {{ bundle.bundle_discount_percent }}</p>
+          {% endif %}
+
+
+          {% if bundle.bundle_description != blank %}
+            <div class="bundle-description">
+              {{ bundle.description }}
+            </div>
+          {% endif %}
+
+          <div
+            class="bundle-default-items"
+            data-default-items="{{ bundle.default_items | map: 'id' | json }}"
+            >
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  <script src="{{ "bundle-builder.js" | asset_url }}" defer></script>
+</div>
+
+{% schema %}
+  {
+    "name": "Section name",
+    "settings": []
+  }
+{% endschema %}
