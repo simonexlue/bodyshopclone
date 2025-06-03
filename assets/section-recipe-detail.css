@@ -1,0 +1,16 @@
+.recipe-detail {
+  padding: 2rem;
+}
+
+.recipe-detail img {
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+  height: auto;
+}
+
+@media screen and (min-width: 760px) {
+  .recipe-detail {
+    padding: 2rem 4rem;
+  } 
+}

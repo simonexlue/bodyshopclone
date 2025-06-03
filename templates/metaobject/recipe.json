@@ -9,15 +9,12 @@
  */
 {
   "sections": {
-    "main": {
-      "type": "main-account",
-      "settings": {
-        "padding_top": 36,
-        "padding_bottom": 36
-      }
+    "recipe-detail": {
+      "type": "recipe-detail",
+      "settings": {}
     }
   },
   "order": [
-    "main"
+    "recipe-detail"
   ]
 }
