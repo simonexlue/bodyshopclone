@@ -1,0 +1,270 @@
+.bundle-builder-root {
+  padding: 0 2rem;
+}
+
+.bundle-list {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bundle-card {
+  display: flex;
+  flex-direction: column;
+  /* border: 1px solid black; */
+  padding: 0 1rem;
+  transition: transform 0.2s ease;
+}
+
+.bundle-card:hover {
+  transform: translateY(-4px);
+}
+
+.bundle-card img {
+  width: 100%;
+  height: auto;
+}
+
+.bundle-card h2 {
+  font-size: 1.5rem;
+}
+
+.bundle-card .bundle-discount {
+  font-size: 1.25rem;
+}
+
+.bundle-description {
+  padding: 0;
+}
+
+/* MODAL */ 
+.bundle-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.bundle-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.bundle-modal-content {
+  position: relative;
+  max-width: 800px;
+  max-height: 90vh;
+  margin: 5vh auto;
+  background: white;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.bundle-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.bundle-modal-header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bundle-modal-body {
+  padding: 1.5rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.bundle-info {
+  background: #f8f9fa;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.bundle-infor p {
+  margin: 0.5rem 0;
+}
+
+.bundle-customizer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.selected-items, .available-products {
+  border: 1px solid #ddd;
+  padding: 1rem;
+}
+
+.bundle-summary {
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pricing-summary div {
+  margin: 0.25rem 0;
+}
+
+.final-price {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.add-bundle-to-cart {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.add-bundle-to-cart:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.selected-items-list {
+  min-height: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.selected-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  margin-bottom: 4px;
+  background: #f9f9f9;
+}
+
+.selected-item:last-child {
+  margin-bottom: 0;
+}
+
+.item-image {
+  flex-shrink: 0;
+}
+
+.item-image img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+}
+
+.item-details {
+  flex-grow: 1;
+}
+
+.item-title {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  line-height: 1.3;
+}
+
+.item-price {
+  color: #007bff;
+  font-weight: 600;
+}
+
+.no-image {
+  widows: 60px;
+  height: 60px;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.remove-item {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.remove-item:hover {
+  background:#c82333;
+}
+
+.no-items {
+  text-align: center;
+  color: #666;
+  padding: 2rem;
+  margin: 0;
+}
+
+.selected-count {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.total-price {
+  color: #666;
+}
+
+.discount-amount {
+  color: #28a745;
+}
+
+.final-price {
+  color: #007bff;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .selected-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .item-image {
+    align-self: center;
+  }
+  
+  .remove-item {
+    align-self: stretch;
+    text-align: center;
+  }
+}

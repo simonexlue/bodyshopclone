@@ -23,22 +23,41 @@
 
           <h2>{{ bundle.bundle_name }}</h2>
 
-          {% if bundle.bundle_discount_percent > 0 %}
-            <p class="bundle-discount">Save {{ bundle.bundle_discount_percent }}</p>
-          {% endif %}
-
-
-          {% if bundle.bundle_description != blank %}
+          {% if bundle.description != blank %}
             <div class="bundle-description">
-              {{ bundle.description }}
+              {{ bundle.description | metafield_tag }}
             </div>
           {% endif %}
 
+          {% if bundle.bundle_discount_percent > 0 %}
+            <p class="bundle-discount">Save {{ bundle.bundle_discount_percent }}%</p>
+          {% endif %}
+
+        {% assign default_products = bundle.default_items.value %}
           <div
-            class="bundle-default-items"
-            data-default-items="{{ bundle.default_items | map: 'id' | json }}"
+              class="bundle-default-items"
+              data-default-items="{{ default_products | map: 'id' | json }}"
+              data-default-items-json='[
+                {% for prod_ref in default_products %}
+                  {
+                    "id": {{ prod_ref.id | json }},
+                    "handle": "{{ prod_ref.handle }}",
+                    "title": "{{ prod_ref.title | escape }}",
+                    "price": {{ prod_ref.price | json }},
+                    "formattedPrice": "{{ prod_ref.price | money }}",
+                    "image": "{% if prod_ref.featured_image != blank %}{{ prod_ref.featured_image | image_url: width:'200x' }}{% endif %}"
+                  }{% unless forloop.last %},{% endunless %}
+                {% endfor %}
+              ]'
             >
-          </div>
+              {% for prod in default_products %}
+                <div class="default-item">
+                  <strong>{{ prod.title }}</strong> - {{ prod.price | money }}
+                </div>
+              {% endfor %}
+            </div>
+
+          <div class="bundle-preview" style="display: none;"></div>
         </li>
       {% endfor %}
     </ul>
