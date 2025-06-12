@@ -31,9 +31,10 @@ function extractBundleData(card) {
   const bundleName = card.querySelector("h2").textContent;
 
   // EXTRACT DEFAULT ITEMS IN JSON
-  const eligibleCollections = card.dataset.eligibleCollections ?
-    JSON.parse(card.dataset.eligibleCollections) : [];
-  
+  const eligibleCollections = card.dataset.eligibleCollections
+    ? JSON.parse(card.dataset.eligibleCollections)
+    : [];
+
   const defaultItemsElement = card.querySelector(".bundle-default-items");
   let defaultItems = [];
 
@@ -54,13 +55,13 @@ function extractBundleData(card) {
     discount,
     bundleName,
     defaultItems,
-    eligibleCollections
+    eligibleCollections,
   };
 }
 
 function handleBundleCardClick(bundleData) {
   console.log("Opening bundle customizer for: ", bundleData);
-  
+
   const modal = createBundleModal(bundleData);
   document.body.appendChild(modal); //??????? explain
 
@@ -147,7 +148,7 @@ function initializeModal(modal, bundleData) {
   let currentPage = 1;
   let hasMoreProducts = true;
   let searchTimeout = null;
-  
+
   // MODAL ELEMENTS
   const closeButton = modal.querySelector(".close-modal");
   const overlay = modal.querySelector(".bundle-modal-overlay");
@@ -158,6 +159,26 @@ function initializeModal(modal, bundleData) {
   const loadingDiv = modal.querySelector(".products-loading");
   const loadMoreBtn = modal.querySelector(".load-more-btn");
   const addToCartBtn = modal.querySelector(".add-bundle-to-cart");
+
+  // ELIGIBLE COLLECTIONS ONLY
+  function populateCollectionFilter() {
+    collectionFilter.innerHTML =
+      '<option value="">Eligible Collections</option>';
+
+    if (
+      bundleData.eligibleCollections &&
+      bundleData.eligibleCollections.length > 0
+    ) {
+      bundleData.eligibleCollections.forEach((collection) => {
+        const option = document.createElement("option");
+        option.value = collection;
+        option.textContent =
+          collection.charAt(0).toUpperCase() +
+          collection.slice(1).replace(/-/g, " ");
+        collectionFilter.appendChild(option);
+      });
+    }
+  }
 
   // CLOSE MODAL
   function closeModal() {
@@ -178,7 +199,7 @@ function initializeModal(modal, bundleData) {
   updateSelectedItemDisplay(modal, selectedItems, bundleData);
 
   // SEARCH FUNCTION
-  searchInput.addEventListener("input", function(e) {
+  searchInput.addEventListener("input", function (e) {
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
       currentPage = 1;
@@ -187,25 +208,26 @@ function initializeModal(modal, bundleData) {
   });
 
   //COLLECTION FILTER
-  collectionFilter.addEventListener("change", function() {
+  collectionFilter.addEventListener("change", function () {
     currentPage = 1;
     loadProducts(true);
   });
 
   // LOAD MORE PRODUCTS
-  loadMoreBtn.addEventListener("click", function() {
+  loadMoreBtn.addEventListener("click", function () {
     currentPage++;
     loadProducts(false);
   });
 
   // ADD TO CART
-  addToCartBtn.addEventListener("click", function() {
+  addToCartBtn.addEventListener("click", function () {
     addBundleToCart(selectedItems, bundleData);
   });
+  
 
   // LOAD PRODUCTS FUNCTION
-  async function loadProducts(reset = false){
-    if(reset) {
+  async function loadProducts(reset = false) {
+    if (reset) {
       productsGrid.innerHTML = "";
       hasMoreProducts = true;
     }
@@ -215,37 +237,95 @@ function initializeModal(modal, bundleData) {
       const searchQuery = searchInput.value.trim();
       const selectedCollection = collectionFilter.value;
 
-      let url = `/collections/all/products.json?limit=12&page=${currentPage}`;
+      // Determine which collections to search
+      let collectionsToSearch = [];
 
-      if(searchQuery) {
-        url += `&q=${encodeURIComponent(searchQuery)}`;
+      if (selectedCollection) {
+        // If a specific collection is selected, use only that one
+        collectionsToSearch = [selectedCollection];
+      } else if (
+        bundleData.eligibleCollections &&
+        bundleData.eligibleCollections.length > 0
+      ) {
+        // If no specific collection selected, use all eligible collections
+        collectionsToSearch = bundleData.eligibleCollections;
+      } else {
+        // Fallback to all collections if no eligible collections specified
+        collectionsToSearch = ["all"];
       }
 
-      if(selectedCollection) {
-        url = `/collections/${selectedCollection}/products.json?limit=12&page=${currentPage}`;
+      console.log("Collections to search:", collectionsToSearch);
+
+      let allProducts = [];
+
+      // Fetch products from each eligible collection
+      for (const collection of collectionsToSearch) {
+        let url;
+        if (collection === "all") {
+          url = `/collections/all/products.json?limit=50&page=${currentPage}`;
+        } else {
+          url = `/collections/${collection}/products.json?limit=50&page=${currentPage}`;
+        }
+
         if (searchQuery) {
           url += `&q=${encodeURIComponent(searchQuery)}`;
         }
+
+        console.log(
+          `Fetching products from collection "${collection}": ${url}`
+        );
+
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+
+          if (data.products && data.products.length > 0) {
+            allProducts = [...allProducts, ...data.products];
+          }
+        } catch (collectionError) {
+          console.warn(
+            `Error fetching from collection "${collection}":`,
+            collectionError
+          );
+        }
       }
 
-      console.log("Fetching products from: ", url);
-      const response = await fetch(url);
-      const data = await response.json();
+      // Remove duplicates based on product ID
+      const uniqueProducts = allProducts.filter(
+        (product, index, self) =>
+          index === self.findIndex((p) => p.id === product.id)
+      );
 
-      if(data.products && data.products.length > 0) {
-        if(reset) {
-          availableProducts = data.products;
+      // Apply pagination to the combined results
+      const startIndex = (currentPage - 1) * 12;
+      const endIndex = startIndex + 12;
+      const paginatedProducts = uniqueProducts.slice(startIndex, endIndex);
+
+      if (paginatedProducts.length > 0) {
+        if (reset) {
+          availableProducts = paginatedProducts;
         } else {
-          availableProducts = [...availableProducts, ...data.products];
+          availableProducts = [...availableProducts, ...paginatedProducts];
         }
 
-        renderProducts(data.products, reset);
+        renderProducts(paginatedProducts, reset);
 
-        hasMoreProducts = data.products.length === 12;
-        loadMoreBtn.parentElement.style.display = hasMoreProducts ? "block" : "none";
+        hasMoreProducts = endIndex < uniqueProducts.length;
+        loadMoreBtn.parentElement.style.display = hasMoreProducts
+          ? "block"
+          : "none";
       } else {
-        if(reset) {
-          productsGrid.innerHTML = "<p>No products found.</p>";
+        if (reset) {
+          if (
+            bundleData.eligibleCollections &&
+            bundleData.eligibleCollections.length > 0
+          ) {
+            productsGrid.innerHTML = `<p>No products found in eligible collections: ${bundleData.eligibleCollections.join(
+              ", "
+            )}</p>`;
+          } else {
+            productsGrid.innerHTML = "<p>No products found.</p>";
+          }
         }
         hasMoreProducts = false;
         loadMoreBtn.parentElement.style.display = "none";
@@ -253,7 +333,8 @@ function initializeModal(modal, bundleData) {
     } catch (error) {
       console.error("Error loading products: ", error);
       if (reset) {
-        productsGrid.innerHTML = "<p>Error loading products. Please try again.</p>";
+        productsGrid.innerHTML =
+          "<p>Error loading products. Please try again.</p>";
       }
     } finally {
       loadingDiv.style.display = "none";
@@ -264,84 +345,109 @@ function initializeModal(modal, bundleData) {
   function renderProducts(products, reset = false) {
     const fragment = document.createDocumentFragment();
 
-    products.forEach(product => {
+    products.forEach((product) => {
       //SKIP ALREADY SELECTED PRODUCTS
-      const isSelected = selectedItems.some(item => item.id === product.id);
+      const isSelected = selectedItems.some((item) => item.productId === product.id);
 
       const productElement = document.createElement("div");
       productElement.className = `product-item ${isSelected ? "selected" : ""}`;
       productElement.dataset.productId = product.id;
 
-      const imageUrl = product.images && product.images.length > 0 
-        ? product.images[0].src.replace(/\.(jpg|jpeg|png|gif|webp)/, '_200x200.$1')
-        : '';
+      const imageUrl =
+        product.images && product.images.length > 0
+          ? product.images[0].src.replace(
+              /\.(jpg|jpeg|png|gif|webp)/,
+              "_200x200.$1"
+            )
+          : "";
 
-      const imageHtml = imageUrl 
-        ? `<img src="${imageUrl}" alt="${product.title}" width="80" height="80">` 
+      const imageHtml = imageUrl
+        ? `<img src="${imageUrl}" alt="${product.title}" width="80" height="80">`
         : '<div class="no-image">No Image</div>';
 
-      productElement.innerHTML = 
-        `
+      productElement.innerHTML = `
           <div class="product-image">${imageHtml}</div>
           <div class="product-details">
             <div class="product-title">${product.title}</div>
-            <div class="product-price">${formatMoney(product.variants[0].price*100)}</div>
+            <div class="product-price">${formatMoney(
+              product.variants[0].price * 100
+            )}</div>
           </div>
-          <button class="add-product-btn" type="button" ${isSelected ? 'disabled' : ''}>
-            ${isSelected ? 'Added' : 'Add'}
+          <button class="add-product-btn" type="button" ${
+            isSelected ? "disabled" : ""
+          }>
+            ${isSelected ? "Added" : "Add"}
           </button>
         `;
 
       const addBtn = productElement.querySelector(".add-product-btn");
-      addBtn.addEventListener("click", function(e) {
+      addBtn.addEventListener("click", function (e) {
         e.stopPropagation();
         addProductToBundle(product);
       });
 
       fragment.appendChild(productElement);
-  });
+    });
 
-    if(reset) {
+    if (reset) {
       productsGrid.innerHTML = "";
     }
     productsGrid.appendChild(fragment);
   }
 
   function addProductToBundle(product) {
-    if(selectedItems.length >= bundleData.maxItems) {
+    if (selectedItems.length >= bundleData.maxItems) {
       alert(`Bundle is full! Maximum ${bundleData.maxItems} items allowed.`);
       return;
     }
 
     // Check if product is already selected
-    if (selectedItems.some(item => item.id === product.id)) {
+    if (selectedItems.some((item) => item.productId === product.id)) {
       return;
     }
 
+    // FIRST AVAILABLE VARIANT
+    const availableVariant = product.variants.find(variant => variant.available) || product.variants[0];
+
+    if (!availableVariant) {
+    alert('This product has no available variants');
+    return;
+  }
+    console.log(`Selected variant for ${product.title}:`, availableVariant);
+
     const newItem = {
-      id: product.id, 
+      id: availableVariant.id,
+      productId: product.id,
       handle: product.handle,
       title: product.title,
-      price: product.variants[0].price * 100,
-      formattedPrice: formatMoney(product.variants[0].price * 100),
-      image: product.images && product.images.length > 0 
-        ? product.images[0].src.replace(/\.(jpg|jpeg|png|gif|webp)/, '_200x200.$1')
-        : ""
+      variantTitle: availableVariant.title,
+      price: parseFloat(availableVariant.price) * 100,
+      formattedPrice: formatMoney(parseFloat(availableVariant.price) *100),
+      sku: availableVariant.sku,
+      image:
+        product.images && product.images.length > 0
+          ? product.images[0].src.replace(
+              /\.(jpg|jpeg|png|gif|webp)/,
+              "_200x200.$1"
+            )
+          : "",
     };
 
     selectedItems.push(newItem);
 
     updateSelectedItemDisplay(modal, selectedItems, bundleData);
     updateProductItemStates();
-    
+
     console.log("Added product to bundle:", newItem.title);
   }
 
   function updateProductItemStates() {
     const productItems = productsGrid.querySelectorAll(".product-item");
-    productItems.forEach(item => {
+    productItems.forEach((item) => {
       const productId = parseInt(item.dataset.productId);
-      const isSelected = selectedItems.some(selectedItem => selectedItem.id === productId);
+      const isSelected = selectedItems.some(
+        (selectedItem) => selectedItem.productId === productId
+      );
       const addBtn = item.querySelector(".add-product-btn");
 
       if (isSelected) {
@@ -357,6 +463,7 @@ function initializeModal(modal, bundleData) {
   }
 
   //INITIALIZE MODAL
+  populateCollectionFilter();
   updateSelectedItemDisplay(modal, selectedItems, bundleData);
   loadProducts(true);
 
@@ -376,7 +483,7 @@ function updateSelectedItemDisplay(modal, selectedItems, bundleData) {
   const selectedCounts = modal.querySelectorAll(".selected-count");
 
   // UPDATE COUNTER
-  selectedCounts.forEach(counter => {
+  selectedCounts.forEach((counter) => {
     counter.textContent = selectedItems.length;
   });
 
@@ -406,14 +513,13 @@ function updateSelectedItemDisplay(modal, selectedItems, bundleData) {
         imageHtml = `<div class="no-image">No Image</div>`;
       }
 
-      itemElement.innerHTML = 
-        `
+      itemElement.innerHTML = `
           <div class="item-image">${imageHtml}</div>
           <div class="item-details">
             <div class="item-title">${item.title}</div>
             <div class="item-price">${item.formattedPrice}</div>
           </div>
-          <button class="remove-item" type="button" data-product-id="${item.id}" data-item-index="${index}">
+          <button class="remove-item" type="button" data-product-id="${item.productId}" data-item-index="${index}">
             x
           </button>
         `;
@@ -435,15 +541,15 @@ function updateSelectedItemDisplay(modal, selectedItems, bundleData) {
         updatePricingSummary(modal, selectedItems, bundleData);
 
         const productItems = modal.querySelectorAll(".product-item");
-        productItems.forEach(item => {
+        productItems.forEach((item) => {
           const itemProductId = parseInt(item.dataset.productId);
           const addBtn = item.querySelector(".add-product-btn");
 
-          if(itemProductId === productId) {
+          if (itemProductId === productId) {
             item.classList.remove("selected");
             addBtn.textContent = "Add";
             addBtn.disabled = false;
-          } else if(selectedItems.length < bundleData.maxItems) {
+          } else if (selectedItems.length < bundleData.maxItems) {
             addBtn.disabled = false;
           }
         });
@@ -467,7 +573,9 @@ function updatePricingSummary(modal, selectedItems, bundleData) {
   const addToCartButton = modal.querySelector(".add-bundle-to-cart");
 
   totalPriceElement.textContent = `Total: ${formatMoney(totalPrice)}`;
-  discountAmountElement.textContent = `Discount (${bundleData.discount}%): -${formatMoney(discountAmount)}`;
+  discountAmountElement.textContent = `Discount (${
+    bundleData.discount
+  }%): -${formatMoney(discountAmount)}`;
   finalPriceElement.textContent = `Bundle Price: ${formatMoney(finalPrice)}`;
 
   if (selectedItems.length > 0) {
@@ -477,6 +585,108 @@ function updatePricingSummary(modal, selectedItems, bundleData) {
     addToCartButton.disabled = true;
     addToCartButton.textContent = "Add Bundle to Cart";
   }
+}
+
+async function addBundleToCart(selectedItems, bundleData) {
+  console.log("Adding bundle to cart: ", selectedItems, bundleData);
+
+  if (selectedItems.length === 0) {
+    alert("Please select sufficient items for your bundle");
+    return;
+  }
+
+  const validationErrors = validateBundleItems(selectedItems);
+  if (validationErrors.length > 0) {
+    console.error("Validation errors:", validationErrors);
+    alert("Some items have invalid data. Please refresh and try again.");
+    return;
+  }
+
+  const addToCartButton = document.querySelector(".add-bundle-to-cart");
+  const originalText = addToCartButton.textContent;
+
+  // LOADING STATE
+  addToCartButton.disabled = true;
+  addToCartButton.textContent = "Adding to Cart...";
+
+  try {
+    const cartItems = selectedItems.map((item) => ({
+      id: item.id,
+      quantity: 1,
+      properties: {
+        _bundle_id: bundleData.bundleId,
+        _bundle_name: bundleData.bundleName,
+        _bundle_discount: bundleData.discount,
+      },
+    }));
+
+    console.log("Cart items to add: ", cartItems);
+
+    // USE SHOPIFY'S CART API
+    const response = await fetch("/cart/add.js", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        items: cartItems,
+      }),
+    });
+    const result = await response.json();
+
+    if (response.ok) {
+      console.log("Bundle added to cart successfully", result);
+
+      addToCartButton.textContent = "Added to Cart!";
+      addToCartButton.style.backgroundColor = "#4caf50";
+
+      // DELAY CLOSE MODAL
+      setTimeout(() => {
+        document.querySelector(".bundle-modal").remove();
+      }, 1500);
+    } else {
+      throw new Error(result.message || "Failed to add bundle to cart");
+    }
+  } catch (error) {
+    console.log("Error adding bundle to cart: ", error);
+    alert("There was an error adding the bundle to cart. Please try again.");
+
+    addToCartButton.disabled = false;
+    addToCartButton.textContent = originalText;
+    addToCartButton.style.backgroundColor = "";
+  }
+}
+
+async function debugCartState() {
+  try {
+    const response = await fetch('/cart.js');
+    const cart = await response.json();
+    console.log("Current cart state:", cart);
+    return cart;
+  } catch (error) {
+    console.error("Error fetching cart:", error);
+  }
+}
+
+// Optional: Function to validate items before adding to cart
+function validateBundleItems(selectedItems) {
+  const errors = [];
+  
+  selectedItems.forEach((item, index) => {
+    if (!item.id || isNaN(item.id)) {
+      errors.push(`Item ${index + 1} (${item.title}) has invalid variant ID`);
+    }
+    
+    if (!item.title || item.title.trim() === '') {
+      errors.push(`Item ${index + 1} has no title`);
+    }
+    
+    if (!item.price || isNaN(item.price) || item.price <= 0) {
+      errors.push(`Item ${index + 1} (${item.title}) has invalid price`);
+    }
+  });
+  
+  return errors;
 }
 
 console.log("Bundle Builder step 3: loaded");

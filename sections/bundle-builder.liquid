@@ -7,11 +7,17 @@
   {% else %}
     <ul class="bundle-list">
       {% for bundle in bundles %}
+        {% assign eligible_collections = bundle.eligible_collections.value %}
         <li 
           class="bundle-card" 
           data-bundle-id="{{ bundle.id }}"
           data-max-items="{{ bundle.max_items }}"
           data-discount="{{ bundle.bundle_discount_percent }}"
+          data-eligible-collections='[
+            {% for collection_ref in eligible_collections %}
+              "{{ collection_ref.handle }}"{% unless forloop.last %},{% endunless %}
+            {% endfor %}
+          ]'
           >
           {% if bundle.bundle_image != blank %}
             <img src="{{ bundle.bundle_image | image_url: width: 300}}"
@@ -39,14 +45,27 @@
               data-default-items="{{ default_products | map: 'id' | json }}"
               data-default-items-json='[
                 {% for prod_ref in default_products %}
+                  {% assign selected_variant = null %}
+                  {% for variant in prod_ref.variants %}
+                  {% if variant.available and selected_variant == null %}
+                      {% assign selected_variant = variant %}
+                      {% break %}
+                    {% endif %}
+                  {% endfor %}
+                  {% if selected_variant == null %}
+                    {% assign selected_variant = prod_ref.variants.first %}
+                  {% endif %}
                   {
-                    "id": {{ prod_ref.id | json }},
+                    "id": {{ selected_variant.id }},
+                    "productId": {{ prod_ref.id }},
                     "handle": "{{ prod_ref.handle }}",
                     "title": "{{ prod_ref.title | escape }}",
-                    "price": {{ prod_ref.price | json }},
-                    "formattedPrice": "{{ prod_ref.price | money }}",
-                    "image": "{% if prod_ref.featured_image != blank %}{{ prod_ref.featured_image | image_url: width:'200x' }}{% endif %}"
-                  }{% unless forloop.last %},{% endunless %}
+                    "variantTitle": "{{ selected_variant.title | escape }}",
+                    "price": {{ selected_variant.price | times: 100 }},
+                    "formattedPrice": "{{ selected_variant.price | money }}",
+                    "sku": "{{ selected_variant.sku | escape }}",
+                    "image": "{% if prod_ref.featured_image != blank %}{{ prod_ref.featured_image | image_url: width: 200 }}{% endif %}"                  
+                    }{% unless forloop.last %},{% endunless %}
                 {% endfor %}
               ]'
             >
