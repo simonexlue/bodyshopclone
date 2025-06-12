@@ -31,6 +31,9 @@ function extractBundleData(card) {
   const bundleName = card.querySelector("h2").textContent;
 
   // EXTRACT DEFAULT ITEMS IN JSON
+  const eligibleCollections = card.dataset.eligibleCollections ?
+    JSON.parse(card.dataset.eligibleCollections) : [];
+  
   const defaultItemsElement = card.querySelector(".bundle-default-items");
   let defaultItems = [];
 
@@ -51,22 +54,13 @@ function extractBundleData(card) {
     discount,
     bundleName,
     defaultItems,
+    eligibleCollections
   };
 }
 
 function handleBundleCardClick(bundleData) {
-  // **TEMP** LOG DATA + SHOW ALERT
-  // **FUTURE**  OPEN CUSTOMIZATION MODAL
-
   console.log("Opening bundle customizer for: ", bundleData);
-
-  // alert(`
-  //   Bundle: ${bundleData.bundleName}
-  //   Max Items: ${bundleData.maxItems}
-  //   Discount: ${bundleData.discount}%
-  //   Default Items: ${bundleData.defaultItems.length}
-  // `)
-
+  
   const modal = createBundleModal(bundleData);
   document.body.appendChild(modal); //??????? explain
 
@@ -99,12 +93,12 @@ function createBundleModal(bundleData) {
         <div class = "bundle-info">
           <p>Max Items: ${bundleData.maxItems}</p>
           <p>Discount: ${bundleData.discount}</p>
-          <p>Default Items: ${bundleData.defaultItems.length}</p>
+          <p>Selected: <span class="selected-count">${bundleData.defaultItems.length}</span>/${bundleData.maxItems}</p>
         </div>
 
         <div class = "bundle-customizer">
           <div class = "selected-items">
-            <h3>Selected Items (${bundleData.defaultItems.length}/${bundleData.maxItems})</h3>
+            <h3>Selected Items (<span class="selected-count">${bundleData.defaultItems.length}</span>/${bundleData.maxItems})</h3>
             <div class = "selected-items-list">
               <!-- Items will be populated here -->
             </div>
@@ -112,7 +106,21 @@ function createBundleModal(bundleData) {
 
           <div class = "available-products">
             <h3>Choose Your Products</h3>
-            <p>(Product selection in later step)</p>
+            <div class="product-search">
+              <input type="text" class="search-input" placeholder="Search products..."/>
+              <div class="search-filters">
+                <select class="collection-filter">
+                  <option value="">All Collections</option>
+                </select>
+              </div>
+            </div>
+            <div class="products-loading" style="display: none;">Loading products...</div>
+            <div class="products-grid">
+              <!--Products will be loaded here -->
+            </div>
+            <div class="load-more-container" style="display: none;">
+              <button class="load-more-btn" type="button">Load More Products</button>
+            </div>
           </div>
         </div>
 
@@ -135,11 +143,21 @@ function initializeModal(modal, bundleData) {
   console.log("Initializing modal functionality");
 
   let selectedItems = [...bundleData.defaultItems];
-
+  let availableProducts = [];
+  let currentPage = 1;
+  let hasMoreProducts = true;
+  let searchTimeout = null;
+  
   // MODAL ELEMENTS
   const closeButton = modal.querySelector(".close-modal");
   const overlay = modal.querySelector(".bundle-modal-overlay");
   const modalContent = modal.querySelector(".bundle-modal-content");
+  const searchInput = modal.querySelector(".search-input");
+  const collectionFilter = modal.querySelector(".collection-filter");
+  const productsGrid = modal.querySelector(".products-grid");
+  const loadingDiv = modal.querySelector(".products-loading");
+  const loadMoreBtn = modal.querySelector(".load-more-btn");
+  const addToCartBtn = modal.querySelector(".add-bundle-to-cart");
 
   // CLOSE MODAL
   function closeModal() {
@@ -159,6 +177,189 @@ function initializeModal(modal, bundleData) {
   //INITIALIZE SELECTED ITEMS DISPLAY
   updateSelectedItemDisplay(modal, selectedItems, bundleData);
 
+  // SEARCH FUNCTION
+  searchInput.addEventListener("input", function(e) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      currentPage = 1;
+      loadProducts(true);
+    }, 300);
+  });
+
+  //COLLECTION FILTER
+  collectionFilter.addEventListener("change", function() {
+    currentPage = 1;
+    loadProducts(true);
+  });
+
+  // LOAD MORE PRODUCTS
+  loadMoreBtn.addEventListener("click", function() {
+    currentPage++;
+    loadProducts(false);
+  });
+
+  // ADD TO CART
+  addToCartBtn.addEventListener("click", function() {
+    addBundleToCart(selectedItems, bundleData);
+  });
+
+  // LOAD PRODUCTS FUNCTION
+  async function loadProducts(reset = false){
+    if(reset) {
+      productsGrid.innerHTML = "";
+      hasMoreProducts = true;
+    }
+    loadingDiv.style.display = "block";
+
+    try {
+      const searchQuery = searchInput.value.trim();
+      const selectedCollection = collectionFilter.value;
+
+      let url = `/collections/all/products.json?limit=12&page=${currentPage}`;
+
+      if(searchQuery) {
+        url += `&q=${encodeURIComponent(searchQuery)}`;
+      }
+
+      if(selectedCollection) {
+        url = `/collections/${selectedCollection}/products.json?limit=12&page=${currentPage}`;
+        if (searchQuery) {
+          url += `&q=${encodeURIComponent(searchQuery)}`;
+        }
+      }
+
+      console.log("Fetching products from: ", url);
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if(data.products && data.products.length > 0) {
+        if(reset) {
+          availableProducts = data.products;
+        } else {
+          availableProducts = [...availableProducts, ...data.products];
+        }
+
+        renderProducts(data.products, reset);
+
+        hasMoreProducts = data.products.length === 12;
+        loadMoreBtn.parentElement.style.display = hasMoreProducts ? "block" : "none";
+      } else {
+        if(reset) {
+          productsGrid.innerHTML = "<p>No products found.</p>";
+        }
+        hasMoreProducts = false;
+        loadMoreBtn.parentElement.style.display = "none";
+      }
+    } catch (error) {
+      console.error("Error loading products: ", error);
+      if (reset) {
+        productsGrid.innerHTML = "<p>Error loading products. Please try again.</p>";
+      }
+    } finally {
+      loadingDiv.style.display = "none";
+    }
+  }
+
+  // RENDER PRODUCTS IN THE GRID
+  function renderProducts(products, reset = false) {
+    const fragment = document.createDocumentFragment();
+
+    products.forEach(product => {
+      //SKIP ALREADY SELECTED PRODUCTS
+      const isSelected = selectedItems.some(item => item.id === product.id);
+
+      const productElement = document.createElement("div");
+      productElement.className = `product-item ${isSelected ? "selected" : ""}`;
+      productElement.dataset.productId = product.id;
+
+      const imageUrl = product.images && product.images.length > 0 
+        ? product.images[0].src.replace(/\.(jpg|jpeg|png|gif|webp)/, '_200x200.$1')
+        : '';
+
+      const imageHtml = imageUrl 
+        ? `<img src="${imageUrl}" alt="${product.title}" width="80" height="80">` 
+        : '<div class="no-image">No Image</div>';
+
+      productElement.innerHTML = 
+        `
+          <div class="product-image">${imageHtml}</div>
+          <div class="product-details">
+            <div class="product-title">${product.title}</div>
+            <div class="product-price">${formatMoney(product.variants[0].price*100)}</div>
+          </div>
+          <button class="add-product-btn" type="button" ${isSelected ? 'disabled' : ''}>
+            ${isSelected ? 'Added' : 'Add'}
+          </button>
+        `;
+
+      const addBtn = productElement.querySelector(".add-product-btn");
+      addBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        addProductToBundle(product);
+      });
+
+      fragment.appendChild(productElement);
+  });
+
+    if(reset) {
+      productsGrid.innerHTML = "";
+    }
+    productsGrid.appendChild(fragment);
+  }
+
+  function addProductToBundle(product) {
+    if(selectedItems.length >= bundleData.maxItems) {
+      alert(`Bundle is full! Maximum ${bundleData.maxItems} items allowed.`);
+      return;
+    }
+
+    // Check if product is already selected
+    if (selectedItems.some(item => item.id === product.id)) {
+      return;
+    }
+
+    const newItem = {
+      id: product.id, 
+      handle: product.handle,
+      title: product.title,
+      price: product.variants[0].price * 100,
+      formattedPrice: formatMoney(product.variants[0].price * 100),
+      image: product.images && product.images.length > 0 
+        ? product.images[0].src.replace(/\.(jpg|jpeg|png|gif|webp)/, '_200x200.$1')
+        : ""
+    };
+
+    selectedItems.push(newItem);
+
+    updateSelectedItemDisplay(modal, selectedItems, bundleData);
+    updateProductItemStates();
+    
+    console.log("Added product to bundle:", newItem.title);
+  }
+
+  function updateProductItemStates() {
+    const productItems = productsGrid.querySelectorAll(".product-item");
+    productItems.forEach(item => {
+      const productId = parseInt(item.dataset.productId);
+      const isSelected = selectedItems.some(selectedItem => selectedItem.id === productId);
+      const addBtn = item.querySelector(".add-product-btn");
+
+      if (isSelected) {
+        item.classList.add("selected");
+        addBtn.textContent = "Added";
+        addBtn.disabled = true;
+      } else {
+        item.classList.remove("selected");
+        addBtn.textContent = "Add";
+        addBtn.disabled = selectedItems.length >= bundleData.maxItems;
+      }
+    });
+  }
+
+  //INITIALIZE MODAL
+  updateSelectedItemDisplay(modal, selectedItems, bundleData);
+  loadProducts(true);
+
   //SHOW MODAL
   requestAnimationFrame(() => {
     modal.style.opacity = "1";
@@ -168,34 +369,16 @@ function initializeModal(modal, bundleData) {
   console.log("Modal initialized successfully");
 }
 
-function debugSelectedItems(selectedItems) {
-  console.log("=== DEBUGGING SELECTED ITEMS ===");
-  selectedItems.forEach((item, index) => {
-    console.log(`Item ${index + 1}:`, {
-      id: item.id,
-      title: item.title,
-      image: item.image,
-      imageType: typeof item.image,
-      hasImage: !!item.image,
-      price: item.price,
-      formattedPrice: item.formattedPrice,
-    });
-  });
-  console.log("=== END DEBUG ===");
-}
-
 function updateSelectedItemDisplay(modal, selectedItems, bundleData) {
   console.log("Updating selected items display", selectedItems);
 
-  debugSelectedItems(selectedItems);
-
   const selectedItemsList = modal.querySelector(".selected-items-list");
-  const selectedCount = modal.querySelector(".selected-count");
+  const selectedCounts = modal.querySelectorAll(".selected-count");
 
   // UPDATE COUNTER
-  if (selectedCount) {
-    selectedCount.textContent = selectedItems.length;
-  }
+  selectedCounts.forEach(counter => {
+    counter.textContent = selectedItems.length;
+  });
 
   // CLEAR EXISTING ITEMS
   selectedItemsList.innerHTML = "";
@@ -218,7 +401,6 @@ function updateSelectedItemDisplay(modal, selectedItems, bundleData) {
               alt="${item.title}"
               width="60"
               height="60">
-            <div class="no-image" style="display:none;">No Image</div>
           `;
       } else {
         imageHtml = `<div class="no-image">No Image</div>`;
@@ -232,7 +414,7 @@ function updateSelectedItemDisplay(modal, selectedItems, bundleData) {
             <div class="item-price">${item.formattedPrice}</div>
           </div>
           <button class="remove-item" type="button" data-product-id="${item.id}" data-item-index="${index}">
-            Remove
+            x
           </button>
         `;
 
@@ -251,6 +433,20 @@ function updateSelectedItemDisplay(modal, selectedItems, bundleData) {
 
         updateSelectedItemDisplay(modal, selectedItems, bundleData);
         updatePricingSummary(modal, selectedItems, bundleData);
+
+        const productItems = modal.querySelectorAll(".product-item");
+        productItems.forEach(item => {
+          const itemProductId = parseInt(item.dataset.productId);
+          const addBtn = item.querySelector(".add-product-btn");
+
+          if(itemProductId === productId) {
+            item.classList.remove("selected");
+            addBtn.textContent = "Add";
+            addBtn.disabled = false;
+          } else if(selectedItems.length < bundleData.maxItems) {
+            addBtn.disabled = false;
+          }
+        });
       });
     });
   }
@@ -271,9 +467,7 @@ function updatePricingSummary(modal, selectedItems, bundleData) {
   const addToCartButton = modal.querySelector(".add-bundle-to-cart");
 
   totalPriceElement.textContent = `Total: ${formatMoney(totalPrice)}`;
-  discountAmountElement.textContent = `Discount (${
-    bundleData.discount
-  }%): -${formatMoney(discountAmount)}`;
+  discountAmountElement.textContent = `Discount (${bundleData.discount}%): -${formatMoney(discountAmount)}`;
   finalPriceElement.textContent = `Bundle Price: ${formatMoney(finalPrice)}`;
 
   if (selectedItems.length > 0) {
