@@ -61,7 +61,7 @@
                     "handle": "{{ prod_ref.handle }}",
                     "title": "{{ prod_ref.title | escape }}",
                     "variantTitle": "{{ selected_variant.title | escape }}",
-                    "price": {{ selected_variant.price | times: 100 }},
+                    "price": {{ selected_variant.price }},
                     "formattedPrice": "{{ selected_variant.price | money }}",
                     "sku": "{{ selected_variant.sku | escape }}",
                     "image": "{% if prod_ref.featured_image != blank %}{{ prod_ref.featured_image | image_url: width: 200 }}{% endif %}"                  
