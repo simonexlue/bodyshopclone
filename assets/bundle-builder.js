@@ -91,12 +91,6 @@ function createBundleModal(bundleData) {
       </div>
 
       <div class = "bundle-modal-body">
-        <div class = "bundle-info">
-          <p>Max Items: ${bundleData.maxItems}</p>
-          <p>Discount: ${bundleData.discount}</p>
-          <p>Selected: <span class="selected-count">${bundleData.defaultItems.length}</span>/${bundleData.maxItems}</p>
-        </div>
-
         <div class = "bundle-customizer">
           <div class = "selected-items">
             <h3>Selected Items (<span class="selected-count">${bundleData.defaultItems.length}</span>/${bundleData.maxItems})</h3>
@@ -182,7 +176,7 @@ function initializeModal(modal, bundleData) {
 
   // CLOSE MODAL
   function closeModal() {
-    console.log("Closing modal");
+    restoreBodyScroll();
     modal.remove();
   }
 
@@ -473,6 +467,7 @@ function initializeModal(modal, bundleData) {
     modal.style.visibility = "visible";
   });
 
+  preventBodyScroll();
   console.log("Modal initialized successfully");
 }
 
@@ -642,6 +637,7 @@ async function addBundleToCart(selectedItems, bundleData) {
 
       // DELAY CLOSE MODAL
       setTimeout(() => {
+        restoreBodyScroll();
         document.querySelector(".bundle-modal").remove();
       }, 1500);
     } else {
@@ -689,4 +685,23 @@ function validateBundleItems(selectedItems) {
   return errors;
 }
 
-console.log("Bundle Builder step 3: loaded");
+function preventBodyScroll() {
+  const scrollY = window.scrollY;
+
+  document.body.classList.add('modal-open');
+  document.body.dataset.scrollY = scrollY;
+  document.body.style.top = `-${scrollY}px`;
+}
+
+function restoreBodyScroll() {
+  document.body.classList.remove('modal-open');
+
+  const scrollY = document.body.dataset.scrollY;
+  document.body.style.top = '';
+  delete document.body.dataset.scrollY;
+  
+  if (scrollY) {
+    window.scrollTo(0, parseInt(scrollY));
+  }
+  
+}
