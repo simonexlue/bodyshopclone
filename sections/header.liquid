@@ -17,63 +17,85 @@
 {%- endif -%}
 
 <style>
-  header-drawer {
-    justify-self: start;
-    margin-left: -1.2rem;
+    header-drawer {
+      justify-self: start;
+      margin-left: -1.2rem;
+    }
+
+    {%- if section.settings.sticky_header_type == 'reduce-logo-size' -%}
+      .scrolled-past-header .header__heading-logo-wrapper {
+        width: 75%;
+      }
+    {%- endif -%}
+
+
+      @media screen and (min-width: 750px) {
+        header-drawer {
+          display: none; !important;
+        }
+      }
+
+
+    .menu-drawer-container {
+      display: flex;
+    }
+
+    .list-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .list-menu--inline {
+      display: inline-flex;
+      flex-wrap: wrap;
+    }
+
+    summary.list-menu__item {
+      padding-right: 2.7rem;
+    }
+
+    .list-menu__item {
+      display: flex;
+      align-items: center;
+      line-height: calc(1 + 0.3 / var(--font-body-scale));
+    }
+
+    .list-menu__item--link {
+      text-decoration: none;
+      padding-bottom: 1rem;
+      padding-top: 1rem;
+      line-height: calc(1 + 0.8 / var(--font-body-scale));
+    }
+
+    @media screen and (max-width: 749px) {
+    .header__search {
+      display: block !important;
+    }
+
+    .header__icon--search {
+      display: block !important;
+    }
   }
 
-  {%- if section.settings.sticky_header_type == 'reduce-logo-size' -%}
-    .scrolled-past-header .header__heading-logo-wrapper {
-      width: 75%;
-    }
-  {%- endif -%}
-
-  {%- if section.settings.menu_type_desktop != "drawer" -%}
-    @media screen and (min-width: 990px) {
-      header-drawer {
-        display: none;
+    @media screen and (min-width: 750px) {
+      .list-menu__item--link {
+        padding-bottom: 0.5rem;
+        padding-top: 0.5rem;
       }
     }
-  {%- endif -%}
 
-  .menu-drawer-container {
-    display: flex;
-  }
+    @media screen and (min-width: 750px) {
+      .header-nav {
+        display: block;
+        border-top: 1px solid rgba(var(--color-foreground), 0.08);
+        padding: 0;
+      }
 
-  .list-menu {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .list-menu--inline {
-    display: inline-flex;
-    flex-wrap: wrap;
-  }
-
-  summary.list-menu__item {
-    padding-right: 2.7rem;
-  }
-
-  .list-menu__item {
-    display: flex;
-    align-items: center;
-    line-height: calc(1 + 0.3 / var(--font-body-scale));
-  }
-
-  .list-menu__item--link {
-    text-decoration: none;
-    padding-bottom: 1rem;
-    padding-top: 1rem;
-    line-height: calc(1 + 0.8 / var(--font-body-scale));
-  }
-
-  @media screen and (min-width: 750px) {
-    .list-menu__item--link {
-      padding-bottom: 0.5rem;
-      padding-top: 0.5rem;
+      .header-nav .page-width {
+        padding: 0 3rem;
+      }
     }
-  }
 </style>
 
 {%- style -%}
@@ -136,15 +158,13 @@
       assign localization_forms = true
     endif
   -%}
-  <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} page-width{% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if localization_forms %} header--has-localizations{% endif %}">
+  <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} {% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if localization_forms %} header--has-localizations{% endif %}">
     {%- liquid
       if section.settings.menu != blank
         render 'header-drawer'
       endif
 
-      if section.settings.logo_position == 'top-center' or section.settings.menu == blank
-        render 'header-search', input_id: 'Search-In-Modal-1'
-      endif
+      render 'header-search', input_id: 'Search-In-Modal-1'
     -%}
 
     {%- if section.settings.logo_position != 'middle-center' -%}
@@ -179,17 +199,23 @@
         </h1>
       {%- endif -%}
     {%- endif -%}
+  </header>
 
-    {%- liquid
-      if section.settings.menu != blank
-        if section.settings.menu_type_desktop == 'dropdown'
-          render 'header-dropdown-menu'
-        elsif section.settings.menu_type_desktop != 'drawer'
-          render 'header-mega-menu'
-        endif
-      endif
-    %}
+  {%- if section.settings.menu != blank and section.settings.menu_type_desktop != 'drawer' -%}
+    <nav class="header-nav desktop-nav" role="navigation">
+      <div class="page-width">
+        {%- liquid
+          if section.settings.menu_type_desktop == 'dropdown'
+            render 'header-dropdown-menu'
+          else
+            render 'header-mega-menu'
+          endif
+        -%}
+      </div>
+    </nav>
+  {%- endif -%}
 
+  <header>
     {%- if section.settings.logo_position == 'middle-center' -%}
       {%- if request.page_type == 'index' -%}
         <h1 class="header__heading">
@@ -247,7 +273,6 @@
           </localization-form>
         {%- endif -%}
       </div>
-      {% render 'header-search', input_id: 'Search-In-Modal' %}
 
       {%- if shop.customer_accounts_enabled -%}
         <a
