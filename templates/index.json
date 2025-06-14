@@ -9,22 +9,76 @@
  */
 {
   "sections": {
-    "image_banner": {
-      "type": "image-banner",
+    "image_with_text_EtEzTt": {
+      "type": "image-with-text",
       "blocks": {
-        "heading": {
+        "heading_3taAkN": {
           "type": "heading",
           "settings": {
             "heading": "Discover Gifts for Dad",
             "heading_size": "h1"
           }
         },
-        "button": {
-          "type": "buttons",
+        "text_ELHeWU": {
+          "type": "text",
           "settings": {
-            "button_label_1": "Shop all",
-            "button_link_1": "shopify://collections/all",
-            "button_style_secondary_1": true,
+            "text": "<p>*ONLINE EXCLUSIVES</p>",
+            "text_style": "body"
+          }
+        },
+        "button_RPPQfU": {
+          "type": "button",
+          "settings": {
+            "button_label": "SHOP GIFTS",
+            "button_link": "shopify://collections/all",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_3taAkN",
+        "text_ELHeWU",
+        "button_RPPQfU"
+      ],
+      "name": "t:sections.image-with-text.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/Preview-23Q4_GIFTING_MOMENTS_FATHERS_DAY_1080x1350_INAHBKV015.webp",
+        "height": "medium",
+        "desktop_image_width": "medium",
+        "layout": "image_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "center",
+        "mobile_content_alignment": "center",
+        "section_color_scheme": "scheme-1",
+        "color_scheme": "scheme-d51e215d-79bd-4459-b6bf-230f03a42083",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    },
+    "rich_text_xkR9Dy": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_wVHckz": {
+          "type": "heading",
+          "settings": {
+            "heading": "SERIOUSLY SWEET SALE!",
+            "heading_size": "hxl"
+          }
+        },
+        "text_jnY8tp": {
+          "type": "text",
+          "settings": {
+            "text": "<h2><strong>Enjoy up to 60% OFF Online & In-store!</strong></h2><h2>Selection may vary</h2>"
+          }
+        },
+        "button_6y8rtf": {
+          "type": "button",
+          "settings": {
+            "button_label": "SHOP NOW",
+            "button_link": "",
+            "button_style_secondary": false,
             "button_label_2": "",
             "button_link_2": "",
             "button_style_secondary_2": false
@@ -32,21 +86,18 @@
         }
       },
       "block_order": [
-        "heading",
-        "button"
+        "heading_wVHckz",
+        "text_jnY8tp",
+        "button_6y8rtf"
       ],
+      "name": "t:sections.rich-text.presets.name",
       "settings": {
-        "image": "shopify://shop_images/Screenshot_2025-06-13_at_11.19.08_PM.png",
-        "image_overlay_opacity": 0,
-        "image_height": "large",
-        "image_behavior": "none",
-        "desktop_content_position": "middle-right",
-        "desktop_content_alignment": "center",
-        "show_text_box": false,
-        "color_scheme": "scheme-1",
-        "stack_images_on_mobile": false,
-        "mobile_content_alignment": "center",
-        "show_text_below": false
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "scheme-9f2c3562-b5fc-434d-bfa6-151e3ad5c842",
+        "full_width": true,
+        "padding_top": 40,
+        "padding_bottom": 52
       }
     },
     "featured_collection": {
@@ -79,7 +130,8 @@
     }
   },
   "order": [
-    "image_banner",
+    "image_with_text_EtEzTt",
+    "rich_text_xkR9Dy",
     "featured_collection"
   ]
 }

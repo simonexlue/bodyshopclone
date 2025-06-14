@@ -17,85 +17,81 @@
 {%- endif -%}
 
 <style>
-    header-drawer {
-      justify-self: start;
-      margin-left: -1.2rem;
-    }
+  header-drawer {
+    justify-self: start;
+    margin-left: -1.2rem;
+  }
 
-    {%- if section.settings.sticky_header_type == 'reduce-logo-size' -%}
-      .scrolled-past-header .header__heading-logo-wrapper {
-        width: 75%;
+  {%- if section.settings.sticky_header_type == 'reduce-logo-size' -%}
+    .scrolled-past-header .header__heading-logo-wrapper {
+      width: 75%;
+    }
+  {%- endif -%}
+
+  .menu-drawer-container {
+    display: flex;
+  }
+
+  .list-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .list-menu--inline {
+    display: inline-flex;
+    flex-wrap: wrap;
+  }
+
+  summary.list-menu__item {
+    padding-right: 2.7rem;
+  }
+
+  .list-menu__item {
+    display: flex;
+    align-items: center;
+    line-height: calc(1 + 0.3 / var(--font-body-scale));
+  }
+
+  .list-menu__item--link {
+    text-decoration: none;
+    padding-bottom: 1rem;
+    padding-top: 1rem;
+    line-height: calc(1 + 0.8 / var(--font-body-scale));
+  }
+
+  /* Hide hamburger menu on desktop (1200px+) when using dropdown/mega menu */
+  @media screen and (min-width: 1200px) {
+    .header-drawer,
+      header-drawer {
+        display: none !important;
       }
-    {%- endif -%}
+  }
 
-
-      @media screen and (min-width: 750px) {
-        header-drawer {
-          display: none; !important;
-        }
-      }
-
-
-    .menu-drawer-container {
-      display: flex;
-    }
-
-    .list-menu {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .list-menu--inline {
-      display: inline-flex;
-      flex-wrap: wrap;
-    }
-
-    summary.list-menu__item {
-      padding-right: 2.7rem;
-    }
-
-    .list-menu__item {
-      display: flex;
-      align-items: center;
-      line-height: calc(1 + 0.3 / var(--font-body-scale));
-    }
-
-    .list-menu__item--link {
-      text-decoration: none;
-      padding-bottom: 1rem;
-      padding-top: 1rem;
-      line-height: calc(1 + 0.8 / var(--font-body-scale));
-    }
-
-    @media screen and (max-width: 749px) {
-    .header__search {
-      display: block !important;
-    }
-
-    .header__icon--search {
-      display: block !important;
+  /* Hide navigation menu below 1200px */
+  @media screen and (max-width: 1199px) {
+    .header-nav {
+      display: none !important;
     }
   }
 
-    @media screen and (min-width: 750px) {
-      .list-menu__item--link {
-        padding-bottom: 0.5rem;
-        padding-top: 0.5rem;
-      }
+  /* Show navigation menu on desktop (1200px+) */
+  @media screen and (min-width: 1200px) {
+    .header-nav {
+      display: block;
+      border-top: 1px solid rgba(var(--color-foreground), 0.08);
+      padding: 0;
     }
 
-    @media screen and (min-width: 750px) {
-      .header-nav {
-        display: block;
-        border-top: 1px solid rgba(var(--color-foreground), 0.08);
-        padding: 0;
-      }
-
-      .header-nav .page-width {
-        padding: 0 3rem;
-      }
+    .header-nav .page-width {
+      padding: 0 3rem;
     }
+
+    .list-menu__item--link {
+      padding-bottom: 0.5rem;
+      padding-top: 0.5rem;
+    }
+  }
 </style>
 
 {%- style -%}
@@ -201,7 +197,7 @@
     {%- endif -%}
   </header>
 
-  {%- if section.settings.menu != blank and section.settings.menu_type_desktop != 'drawer' -%}
+  {%- if section.settings.menu != blank -%}
     <nav class="header-nav desktop-nav" role="navigation">
       <div class="page-width">
         {%- liquid
