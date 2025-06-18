@@ -6,6 +6,8 @@
   .section-{{ section.id }}-padding {
     padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
     padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+    padding-left: {{ section.settings.padding_left | times: 0 | round: 0 }}px;
+    padding-right: {{ section.settings.padding_right | times: 0 | round: 0 }}px;
   }
 
   @media screen and (min-width: 750px) {
@@ -14,6 +16,39 @@
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
   }
+
+  .section-{{ section.id }}-padding,
+  .section-{{ section.id }}-padding .collection-list-wrapper,
+  .section-{{ section.id }}-padding .slider-mobile-gutter,
+  .section-{{ section.id }}-padding .page-width {
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .collection-list .grid__item {
+  max-width: 200px;
+  min-width: 150px;
+  }
+
+  .collection-list {
+    justify-content: center;
+  }
+
+  @media screen and (min-width: 850px) {
+  .collection-list.grid--3-col-desktop {
+    grid-template-columns: repeat(6, 1fr) !important;
+  }
+  
+  .collection-list .grid__item {
+    max-width: none !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
+}
+  
 {%- endstyle -%}
 
 {%- liquid
@@ -25,13 +60,14 @@
 -%}
 
 <div class="color-{{ section.settings.color_scheme }} gradient">
-  <div class="collection-list-wrapper page-width isolate{% if show_mobile_slider %} page-width-desktop{% endif %}{% if section.settings.title == blank %} no-heading{% endif %}{% if section.settings.show_view_all == false or section.blocks.size > collections.size %} no-mobile-link{% endif %} section-{{ section.id }}-padding">
+  <div class="collection-list-wrapper page-width isolate{% if show_mobile_slider %} page-width-desktop{% endif %}{% if section.settings.title == blank %} no-heading{% endif %}{% if section.settings.show_view_all == false or section.blocks.size > collections.size %} no-mobile-link{% endif %} section-{{ section.id }}-padding" >
     {%- unless section.settings.title == blank -%}
-      <div class="title-wrapper-with-link{% if show_mobile_slider %} title-wrapper--self-padded-tablet-down{% else %} title-wrapper--self-padded-mobile{% endif %} title-wrapper--no-top-margin">
+      <div class="title-wrapper-with-link{% if show_mobile_slider %} title-wrapper--self-padded-tablet-down{% else %} title-wrapper--self-padded-mobile{% endif %} title-wrapper--no-top-margin" >
         <h2
           id="SectionHeading-{{ section.id }}"
           class="collection-list-title inline-richtext {{ section.settings.heading_size }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
-        >
+          style="text-align: center !important; display: block !important; width: 100% !important;"
+          >
           {{ section.settings.title }}
         </h2>
 
@@ -53,6 +89,7 @@
         class="collection-list contains-card contains-card--collection{% if settings.card_style == 'standard' %} contains-card--standard{% endif %} grid grid--{{ section.settings.columns_desktop }}-col-desktop grid--{{ section.settings.columns_mobile }}-col-tablet-down{% if section.settings.swipe_on_mobile %} slider slider--tablet grid--peek{% endif %} collection-list--{{ section.blocks.size }}-items"
         id="Slider-{{ section.id }}"
         role="list"
+        style="gap: 3rem; padding-left: 10rem; padding-right: 10rem; justify-content: center;"
       >
         {%- liquid
           assign columns = section.blocks.size
@@ -133,6 +170,7 @@
   </div>
 </div>
 
+
 {% schema %}
 {
   "name": "t:sections.collection-list.name",
@@ -180,7 +218,7 @@
     {
       "type": "header",
       "content": "t:sections.collection-list.settings.header_layout.content"
-    },    
+    },
     {
       "type": "select",
       "id": "image_ratio",
@@ -222,7 +260,7 @@
       "id": "show_view_all",
       "default": false,
       "label": "t:sections.collection-list.settings.show_view_all.label",
-      "info": "t:sections.collection-list.settings.show_view_all.info"   
+      "info": "t:sections.collection-list.settings.show_view_all.info"
     },
     {
       "type": "header",
