@@ -5,6 +5,8 @@
   .section-{{ section.id }}-padding {
     padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
     padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+    padding-left: {{ section.settings.padding_left | times: 0 | round: 0 }}px;
+    padding-right: {{ section.settings.padding_right | times: 0 | round: 0 }}px;
   }
 
   @media screen and (min-width: 750px) {
@@ -12,6 +14,41 @@
       padding-top: {{ section.settings.padding_top }}px;
       padding-bottom: {{ section.settings.padding_bottom }}px;
     }
+  }
+
+  .section-{{ section.id }}-padding,
+  .section-{{ section.id }}-padding .page-width,
+  .section-{{ section.id }}-padding .slider-mobile-gutter {
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .section-{{ section.id }}-padding .multicolumn-card__image-wrapper {
+    width: 48px !important;
+    height: 48px !important;
+    max-width: 48px !important;
+    margin: 0 auto !important;
+  }
+
+  .section-{{ section.id }}-padding .multicolumn-card__image-wrapper .media {
+    width: 48px !important;
+    height: 48px !important;
+    padding-bottom: 0 !important;
+  }
+
+  .section-{{ section.id }}-padding .multicolumn-card__image {
+    width: 48px !important;
+    height: 48px !important;
+    object-fit: cover !important;
+  }
+
+  .section-{{ section.id }}-padding .multicolumn-list__item:first-child .multicolumn-card__image {
+    width: 63px !important;
+    height: 63px !important;
+    /* transform: scale(1.2) !important; */
   }
 {%- endstyle -%}
 
@@ -236,7 +273,7 @@
     {
       "type": "header",
       "content": "t:sections.multicolumn.settings.header_image.content"
-    },    
+    },
     {
       "type": "select",
       "id": "image_width",
@@ -284,23 +321,23 @@
     {
       "type": "header",
       "content": "t:sections.multicolumn.settings.header_button.content"
-    },    
+    },
     {
       "type": "text",
       "id": "button_label",
       "default": "t:sections.multicolumn.settings.button_label.default",
-      "label": "t:sections.multicolumn.settings.button_label.label", 
+      "label": "t:sections.multicolumn.settings.button_label.label",
       "info": "t:sections.multicolumn.settings.button_label.info"
     },
     {
       "type": "url",
       "id": "button_link",
       "label": "t:sections.multicolumn.settings.button_link.label"
-    },    
+    },
     {
       "type": "header",
       "content": "t:sections.multicolumn.settings.header_layout.content"
-    },     
+    },
     {
       "type": "range",
       "id": "columns_desktop",
@@ -347,7 +384,7 @@
       "id": "color_scheme",
       "label": "t:sections.all.colors.label",
       "default": "scheme-1"
-    },    
+    },
     {
       "type": "header",
       "content": "t:sections.multicolumn.settings.header_mobile.content"

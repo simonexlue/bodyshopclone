@@ -325,6 +325,63 @@
         "padding_top": 36,
         "padding_bottom": 36
       }
+    },
+    "multicolumn_NHrMR4": {
+      "type": "multicolumn",
+      "blocks": {
+        "column_qW36gx": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/delivery-fast-svgrepo-com_2_1.svg",
+            "title": "<strong>Free delivery over $70</strong>",
+            "text": "<p>All orders are sent via tracked courier</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_HwErjE": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/vegan-svgrepo-com.svg",
+            "title": "<strong>100% Vegan</strong>",
+            "text": "<p>Our product formulas are certified by The Vegan Society</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_K8PWRc": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/secure-payment-svgrepo-com.svg",
+            "title": "<strong>Secure Payments</strong>",
+            "text": "<p>Shop with Confidence - 100% Secure Checkout</p>",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "column_qW36gx",
+        "column_HwErjE",
+        "column_K8PWRc"
+      ],
+      "name": "t:sections.multicolumn.presets.name",
+      "settings": {
+        "title": "",
+        "heading_size": "h1",
+        "image_width": "third",
+        "image_ratio": "adapt",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 3,
+        "column_alignment": "center",
+        "background_style": "none",
+        "color_scheme": "scheme-a318dd39-8a54-48a0-9385-0a96ae102608",
+        "columns_mobile": "1",
+        "swipe_on_mobile": false,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
     }
   },
   "order": [
@@ -335,6 +392,7 @@
     "featured_collection_AWwNf7",
     "collection_list_hqAaRq",
     "collage_t3DK6e",
-    "featured_collection_yzgdLL"
+    "featured_collection_yzgdLL",
+    "multicolumn_NHrMR4"
   ]
 }
