@@ -44,7 +44,7 @@
     "card_style": "standard",
     "card_image_padding": 0,
     "card_text_alignment": "left",
-    "card_color_scheme": "scheme-2",
+    "card_color_scheme": "scheme-c9080668-009a-49ad-9e9e-452f5492fa0d",
     "card_border_thickness": 0,
     "card_border_opacity": 10,
     "card_corner_radius": 0,
@@ -233,6 +233,28 @@
       "scheme-a318dd39-8a54-48a0-9385-0a96ae102608": {
         "settings": {
           "background": "#dfe1bf",
+          "background_gradient": "",
+          "text": "#121212",
+          "button": "#121212",
+          "button_label": "#ffffff",
+          "secondary_button_label": "#121212",
+          "shadow": "#121212"
+        }
+      },
+      "scheme-c9080668-009a-49ad-9e9e-452f5492fa0d": {
+        "settings": {
+          "background": "#fbf9f7",
+          "background_gradient": "",
+          "text": "#121212",
+          "button": "#121212",
+          "button_label": "#ffffff",
+          "secondary_button_label": "#121212",
+          "shadow": "#121212"
+        }
+      },
+      "scheme-ab68f079-9f6c-44a1-b83f-83f5fa446a2f": {
+        "settings": {
+          "background": "#f9f9f9",
           "background_gradient": "",
           "text": "#121212",
           "button": "#121212",

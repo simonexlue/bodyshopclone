@@ -102,7 +102,7 @@
     },
     "featured_collection_zxgLgL": {
       "type": "featured-collection",
-      "name": "t:sections.featured-collection.presets.name",
+      "name": "Bundles we love",
       "settings": {
         "collection": "bundles",
         "products_to_show": 6,
@@ -116,7 +116,7 @@
         "full_width": false,
         "show_view_all": true,
         "view_all_style": "solid",
-        "color_scheme": "",
+        "color_scheme": "scheme-ab68f079-9f6c-44a1-b83f-83f5fa446a2f",
         "image_ratio": "adapt",
         "image_shape": "default",
         "show_secondary_image": true,
@@ -159,7 +159,7 @@
       "settings": {
         "desktop_content_position": "center",
         "content_alignment": "center",
-        "color_scheme": "scheme-d51e215d-79bd-4459-b6bf-230f03a42083",
+        "color_scheme": "scheme-ab68f079-9f6c-44a1-b83f-83f5fa446a2f",
         "full_width": true,
         "padding_top": 40,
         "padding_bottom": 28
@@ -181,7 +181,7 @@
         "full_width": true,
         "show_view_all": false,
         "view_all_style": "solid",
-        "color_scheme": "",
+        "color_scheme": "scheme-ab68f079-9f6c-44a1-b83f-83f5fa446a2f",
         "image_ratio": "adapt",
         "image_shape": "default",
         "show_secondary_image": true,
@@ -265,34 +265,31 @@
             "image": "shopify://shop_images/VitaminERoutineBanner.webp"
           }
         },
-        "product_43fKdC": {
-          "type": "product",
+        "collection_products_4znAXT": {
+          "type": "collection_products",
           "settings": {
-            "product": "vitamin-e-moisture-cream",
-            "second_image": false
-          }
-        },
-        "product_ekXQQJ": {
-          "type": "product",
-          "settings": {
-            "product": "vitamin-e-routine",
+            "collection": "vitamin-e",
+            "products_limit": 5,
+            "show_collection_title": true,
+            "show_collection_description": false,
+            "show_view_all": false,
             "second_image": false
           }
         }
       },
       "block_order": [
         "image_xYrnwz",
-        "product_43fKdC",
-        "product_ekXQQJ"
+        "collection_products_4znAXT"
       ],
       "name": "t:sections.collage.presets.name",
       "settings": {
-        "heading": "Multimedia collage",
+        "heading": "<strong>THE BEST! ⭐⭐⭐⭐⭐</strong>",
+        "subheading": "\"I have been using this moisturiser for years. It feels lovely on a freshly washed face and has a delicate smell. I also use the intense moisture cream most nights. It is the best!\" - Jenny L.",
         "heading_size": "h1",
         "desktop_layout": "left",
         "mobile_layout": "column",
         "card_styles": "product-card-wrapper",
-        "color_scheme": "",
+        "color_scheme": "scheme-c9080668-009a-49ad-9e9e-452f5492fa0d",
         "padding_top": 36,
         "padding_bottom": 36
       }

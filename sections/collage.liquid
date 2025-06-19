@@ -14,6 +14,7 @@
     padding-right: 0 !important;
     max-width: 100% !important;
   }
+  
 
   @media screen and (min-width: 750px) {
     .section-{{ section.id }}-padding {
@@ -22,6 +23,55 @@
     }
   }
 
+  .collection-products-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  @media screen and (max-width: 749px) {
+    .collection-products-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto;
+      gap: 0.5rem;
+    }
+  }
+
+  .collection-block-header {
+    margin-bottom: 1rem;
+  }
+
+  .collection-block-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+
+  .collection-block-description {
+    color: rgba(var(--color-foreground), 0.7);
+    font-size: 1.5rem;
+  }
+  
+  .collection-products-grid .card__content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: left !important;
+  }
+  
+  .collection-products-grid .card__information {
+    text-align: left !important;
+  }
+  
+  .collection-products-grid .card-information {
+    text-align: left !important;
+  }
+  
+  .collection-products-grid .price {
+    text-align: left !important;
+    justify-content: flex-start !important;
+  }
   
 {%- endstyle -%}
 
@@ -29,9 +79,15 @@
   <div class="page-width section-{{ section.id }}-padding">
     {%- if section.settings.heading != blank -%}
       <h2 class="collage-wrapper-title inline-richtext {{ section.settings.heading_size }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
-        style="text-align: center !important; display: block !important; width: 100% !important;">
+        style="text-align: center !important; display: block !important; width: 100% !important; padding-left: 2rem; padding-right: 2rem;">
         {{ section.settings.heading }}
       </h2>
+    {%- endif -%}
+    {%- if section.settings.subheading != blank -%}
+      <h3 class="collage-wrapper-title inline-richtext {% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+        style="text-align: center !important; display: block !important; width: 100% !important; padding-left: 2rem; padding-right: 2rem;">
+        {{ section.settings.subheading }}
+      </h3>
     {%- endif -%}
     <div class="collage{% if section.settings.mobile_layout == 'collage' %} collage--mobile{% endif %}">
       {% assign skip_card_product_styles = false %}
@@ -69,8 +125,8 @@
                     -%}
                     {%- if large_block -%}
                       {%- capture sizes -%}
-                        {% if section.blocks.size == 1 -%}(min-width: {{ settings.page_width }}px) calc({{ settings.page_width }}px - 100px){% else %}(min-width: {{ settings.page_width }}px) calc(({{ settings.page_width }}px - 100px) * 2 / 3 - {{ grid_space_desktop }}){% endif %},
-                        {% if section.blocks.size == 1 -%}(min-width: 750px) calc(100vw - 100px){% else %}(min-width: 750px) calc((100vw - 100px) * 2 / 3 - {{ grid_space_desktop }}){% endif %},
+                        {% if section.blocks.size == 1 -%}(min-width: {{ settings.page_width }}px) calc({{ settings.page_width }}px - 100px){% else %}(min-width: {{ settings.page_width }}px) calc(({{ settings.page_width }}px - 100px) * 1 / 2 - {{ grid_space_desktop }}){% endif %},
+                        {% if section.blocks.size == 1 -%}(min-width: 750px) calc(100vw - 100px){% else %}(min-width: 750px) calc((100vw - 100px) * 1 / 2 - {{ grid_space_desktop }}){% endif %},
                         {% if section.blocks.size == 2 and section.settings.mobile_layout == 'collage' -%}calc((100vw - 30px) / 2){% else %}calc(100vw - 30px){% endif %}
                         {%- endcapture -%}
                       {{
@@ -82,8 +138,8 @@
                       }}
                     {%- else -%}
                       {%- capture sizes -%}
-                           (min-width: {{ settings.page_width }}px) calc(({{ settings.page_width }}px - 100px) * 1 / 3 - {{ grid_space_desktop }}),
-                           (min-width: 750px) calc((100vw - 100px) * 1 / 3 - {{ grid_space_desktop }}),
+                           (min-width: {{ settings.page_width }}px) calc(({{ settings.page_width }}px - 100px) * 1 / 2 - {{ grid_space_desktop }}),
+                           (min-width: 750px) calc((100vw - 100px) * 1 / 2 - {{ grid_space_desktop }}),
                            {% if section.settings.mobile_layout == 'collage' %}calc((100vw - 30px) / 2 - {{ grid_space_mobile }}){% else %}calc(100vw - 30px){% endif %}
                         {%- endcapture -%}
                       {{
@@ -120,6 +176,59 @@
                 wrapper_class: section.settings.card_styles,
                 placeholder_image: placeholder_image
               %}
+            {%- when 'collection_products' -%}
+              <div class="collage-card {% if section.settings.card_styles == 'none' %}global-media-settings{% else %}card-wrapper {{ section.settings.card_styles }} color-{{ settings.card_color_scheme }} gradient{% endif %}">
+                {%- if block.settings.collection != blank -%}
+                  <div class="collection-block-header" style="text-align: center !important; display: block !important; width: 100% !important;"">
+                    {%- if block.settings.show_collection_title -%}
+                      <h3 class="shop-the-look-title" style="text-align: center; font-size: 1.5rem; font-weight: normal; color: rgba(var(--color-foreground), 0.7); margin-bottom: 0; text-transform: uppercase; letter-spacing: 1px;">
+                        SHOP THE LOOK
+                      </h3>
+                      <h1 class="collection-block-title" style="text-align: center; font-size: 5rem; font-weight: bold; margin-top: 0.5rem; margin-bottom: 0.5; color: rgba(var(--color-foreground), 0.8);">{{ block.settings.collection.title }}</h1>
+                    {%- endif -%}
+                    {%- if block.settings.show_collection_description and block.settings.collection.description != blank -%}
+                      <div class="collection-block-description">{{ block.settings.collection.description | truncate: 150 }}</div>
+                    {%- endif -%}
+                  </div>
+                  
+                  <div class="collection-products-grid" style="width: 75%; margin: 0 auto; text-align: center;">
+                    {%- assign products_limit = block.settings.products_limit | default: 4 -%}
+                    {%- for product in block.settings.collection.products limit: products_limit -%}
+                      {% render 'card-product',
+                        card_product: product,
+                        media_aspect_ratio: 'adapt',
+                        show_secondary_image: block.settings.second_image,
+                        extend_height: false,
+                        placeholder_image: 'product-apparel-1',
+                        skip_styles: skip_card_product_styles
+                      %}
+                      {% assign skip_card_product_styles = true %}
+                    {%- endfor -%}
+                  </div>
+                  
+                  {%- if block.settings.show_view_all and block.settings.collection.url != blank -%}
+                    <div style="text-align: center; margin-top: 1rem;">
+                      <a href="{{ block.settings.collection.url }}" class="button button--secondary">
+                        {{ 'sections.featured_collection.view_all' | t }}
+                      </a>
+                    </div>
+                  {%- endif -%}
+                {%- else -%}
+                  <div class="collection-products-grid">
+                    {%- for i in (1..4) -%}
+                      {% render 'card-product',
+                        card_product: blank,
+                        media_aspect_ratio: 'adapt',
+                        show_secondary_image: false,
+                        extend_height: false,
+                        placeholder_image: 'product-apparel-1',
+                        skip_styles: skip_card_product_styles
+                      %}
+                      {% assign skip_card_product_styles = true %}
+                    {%- endfor -%}
+                  </div>
+                {%- endif -%}
+              </div>
             {%- when 'video' -%}
               <div class="collage-card {% if section.settings.card_styles == 'none' %}global-media-settings{% else %}{{ section.settings.card_styles }} color-{{ settings.card_color_scheme }} gradient{% endif %}">
                 <modal-opener data-modal="#PopupModal-{{ block.id }}">
@@ -151,7 +260,7 @@
                             {% if section.blocks.size == 1 -%}
                               calc({{ settings.page_width }}px - 100px)
                             {%- else -%}
-                              {{- settings.page_width | minus: 100 | times: 0.67 | round }}px
+                              {{- settings.page_width | minus: 100 | times: 0.5 | round }}px
                             {%- endif -%}
                             , (min-width: 750px)
                             {%- if section.blocks.size == 1 %} calc(100vw - 100px){% else %} 500px{% endif -%}
@@ -237,6 +346,12 @@
       "id": "heading",
       "default": "t:sections.collage.settings.heading.default",
       "label": "t:sections.collage.settings.heading.label"
+    },
+        {
+      "type": "inline_richtext",
+      "id": "subheading",
+      "default": "t:sections.collage.settings.heading.default",
+      "label": "t:sections.slideshow.blocks.slide.settings.subheading.label"
     },
     {
       "type": "select",
@@ -391,6 +506,50 @@
         }
       ]
     },
+{
+      "type": "collection_products",
+      "name": "Collection Products",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "range",
+          "id": "products_limit",
+          "min": 2,
+          "max": 12,
+          "step": 1,
+          "label": "Number of products to show",
+          "default": 4
+        },
+        {
+          "type": "checkbox",
+          "id": "show_collection_title",
+          "default": true,
+          "label": "Show collection title"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_collection_description",
+          "default": false,
+          "label": "Show collection description"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_view_all",
+          "default": true,
+          "label": "Show 'View all' button"
+        },
+        {
+          "type": "checkbox",
+          "id": "second_image",
+          "default": false,
+          "label": "Show second product image on hover"
+        }
+      ]
+    },
     {
       "type": "video",
       "name": "t:sections.collage.blocks.video.name",
@@ -419,7 +578,7 @@
       ]
     }
   ],
-  "max_blocks": 3,
+  "max_blocks": 10,
   "presets": [
     {
       "name": "t:sections.collage.presets.name",
@@ -428,7 +587,7 @@
           "type": "image"
         },
         {
-          "type": "product"
+          "type": "collection_products"
         },
         {
           "type": "collection"
