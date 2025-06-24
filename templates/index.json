@@ -428,11 +428,60 @@
         "padding_top": 36,
         "padding_bottom": 36
       }
+    },
+    "image_with_text_jjzAyj": {
+      "type": "image-with-text",
+      "blocks": {
+        "heading_fypJze": {
+          "type": "heading",
+          "settings": {
+            "heading": "Build your own bundle",
+            "heading_size": "h1"
+          }
+        },
+        "text_YyJBKt": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Choose your favourite items from our eligible collections and save some $$ while you're at it!</p>",
+            "text_style": "body"
+          }
+        },
+        "button_PygKEN": {
+          "type": "button",
+          "settings": {
+            "button_label": "View bundle picker",
+            "button_link": "shopify://pages/bundle-builder",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": [
+        "heading_fypJze",
+        "text_YyJBKt",
+        "button_PygKEN"
+      ],
+      "name": "t:sections.image-with-text.presets.name",
+      "settings": {
+        "image": "shopify://shop_images/Coconut3.webp",
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "image_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "middle",
+        "desktop_content_alignment": "left",
+        "mobile_content_alignment": "center",
+        "section_color_scheme": "scheme-2",
+        "color_scheme": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
     }
   },
   "order": [
     "image_banner_ayKqmF",
     "rich_text_xkR9Dy",
+    "image_with_text_jjzAyj",
     "featured_collection_zxgLgL",
     "rich_text_XYWMQj",
     "featured_collection_AWwNf7",

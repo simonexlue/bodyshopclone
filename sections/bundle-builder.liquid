@@ -8,6 +8,7 @@
     <ul class="bundle-list">
       {% for bundle in bundles %}
         {% assign eligible_collections = bundle.eligible_collections.value %}
+        {% assign eligible_variants = bundle.eligible_variants.value %}
         <li 
           class="bundle-card" 
           data-bundle-id="{{ bundle.id }}"
@@ -16,6 +17,11 @@
           data-eligible-collections='[
             {% for collection_ref in eligible_collections %}
               "{{ collection_ref.handle }}"{% unless forloop.last %},{% endunless %}
+            {% endfor %}
+          ]'
+          data-eligible-variant-ids='[
+            {% for vr in eligible_variants %}
+              {{ vr.id }}{% unless forloop.last %},{% endunless %}
             {% endfor %}
           ]'
           >
@@ -86,7 +92,8 @@
 
 {% schema %}
   {
-    "name": "Section name",
+    "name": "Bundle builder",
+    "class": "section",
     "settings": []
   }
 {% endschema %}

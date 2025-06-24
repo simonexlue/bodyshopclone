@@ -4,6 +4,11 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeBundleBuilder();
 });
 
+const BUNDLE_VARIANT_IDS = {
+  "Starter Fragrance Box": 51840104071484,   //fragrance kit
+  "Starter Hair Kit": 51840074318140,   //hair kit
+};
+
 function initializeBundleBuilder() {
   const bundleCards = document.querySelectorAll(".bundle-card");
 
@@ -35,6 +40,10 @@ function extractBundleData(card) {
     ? JSON.parse(card.dataset.eligibleCollections)
     : [];
 
+  const eligibleVariantIds = card.dataset.eligibleVariantIds
+    ? JSON.parse(card.dataset.eligibleVariantIds)
+    : [];
+
   const defaultItemsElement = card.querySelector(".bundle-default-items");
   let defaultItems = [];
 
@@ -56,6 +65,7 @@ function extractBundleData(card) {
     bundleName,
     defaultItems,
     eligibleCollections,
+    eligibleVariantIds,
   };
 }
 
@@ -135,7 +145,6 @@ function createBundleModal(bundleData) {
 }
 
 function initializeModal(modal, bundleData) {
-  console.log("Initializing modal functionality");
 
   let selectedItems = [...bundleData.defaultItems];
   let availableProducts = [];
@@ -283,6 +292,18 @@ function initializeModal(modal, bundleData) {
           );
         }
       }
+
+      allProducts = allProducts
+        .map(product => {
+          // keep only the variants you declared
+          const variants = product.variants.filter(v =>
+            bundleData.eligibleVariantIds.includes(v.id)
+          );
+          // if none remain, drop that product entirely
+          if (variants.length === 0) return null;
+          return { ...product, variants };
+        })
+        .filter(Boolean);
 
       // Remove duplicates based on product ID
       const uniqueProducts = allProducts.filter(
@@ -573,85 +594,104 @@ function updatePricingSummary(modal, selectedItems, bundleData) {
   }%): -${formatMoney(discountAmount)}`;
   finalPriceElement.textContent = `Bundle Price: ${formatMoney(finalPrice)}`;
 
-  if (selectedItems.length > 0) {
+  if (selectedItems.length === bundleData.maxItems) {
     addToCartButton.disabled = false;
-    addToCartButton.textContent = `Add Bundle to Cart (${selectedItems.length} items)`;
+    addToCartButton.textContent = `Add Bundle to Cart (${bundleData.maxItems} items)`;
   } else {
     addToCartButton.disabled = true;
-    addToCartButton.textContent = "Add Bundle to Cart";
+    addToCartButton.textContent = `Select ${bundleData.maxItems} items`;
   }
 }
 
 async function addBundleToCart(selectedItems, bundleData) {
-  console.log("Adding bundle to cart: ", selectedItems, bundleData);
+  if (selectedItems.length !== bundleData.maxItems) {
+    alert(`Please select exactly ${bundleData.maxItems} items for this bundle.`);
+    return;
+  }
 
   if (selectedItems.length === 0) {
-    alert("Please select sufficient items for your bundle");
+    alert("Please select at least one item for your bundle");
     return;
   }
 
   const validationErrors = validateBundleItems(selectedItems);
-  if (validationErrors.length > 0) {
+  if (validationErrors.length) {
     console.error("Validation errors:", validationErrors);
-    alert("Some items have invalid data. Please refresh and try again.");
+    alert("Some items are invalid. Please refresh and try again.");
     return;
   }
 
-  const addToCartButton = document.querySelector(".add-bundle-to-cart");
-  const originalText = addToCartButton.textContent;
-
-  // LOADING STATE
-  addToCartButton.disabled = true;
-  addToCartButton.textContent = "Adding to Cart...";
+  const addBtn = document.querySelector(".add-bundle-to-cart");
+  const originalText = addBtn.textContent;
+  addBtn.disabled = true;
+  addBtn.textContent = "Adding…";
 
   try {
-    const cartItems = selectedItems.map((item) => ({
-      id: item.id,
-      quantity: 1,
-      properties: {
-        _bundle_id: bundleData.bundleId,
-        _bundle_name: bundleData.bundleName,
-        _bundle_discount: bundleData.discount,
-      },
-    }));
+    const totalCents = selectedItems.reduce((sum, i) => sum + i.price, 0);
+    const finalCents = Math.round(totalCents * (1 - bundleData.discount / 100));
 
-    console.log("Cart items to add: ", cartItems);
-
-    // USE SHOPIFY'S CART API
-    const response = await fetch("/cart/add.js", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        items: cartItems,
-      }),
+    const properties = {
+      "Bundle Name":   bundleData.bundleName,
+      "Bundle Discount": `${bundleData.discount}%`
+    };
+    selectedItems.forEach((item, i) => {
+      properties[`Item ${i+1}`] = `${item.title} — ${item.variantTitle}`;
     });
-    const result = await response.json();
+
+    const BUNDLE_VARIANT_ID = BUNDLE_VARIANT_IDS[bundleData.bundleName];
+    
+    if (!BUNDLE_VARIANT_ID) {
+      alert("Error: Unknown bundle type");
+      console.error("No variant ID for bundleId:", bundleData.bundleId);
+      return;
+    }
+
+    // Construct the payload
+    const payload = {
+      items: [{
+        id: BUNDLE_VARIANT_ID,
+        quantity: 1,
+        properties,
+      }]
+    };
+
+    const response = await fetch("/cart/add.js", {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    console.log("❯ /cart/add.js response", response.status, data);
+
+    if (!response.ok) {
+      const errMsg = data.description || data.message || JSON.stringify(data);
+      alert("Shopify error: " + errMsg);
+      throw new Error(errMsg);
+    }
 
     if (response.ok) {
-      console.log("Bundle added to cart successfully", result);
+      addBtn.textContent = "Added!";
+      addBtn.style.backgroundColor = "#4caf50";
+      refreshCartBadge();
 
-      addToCartButton.textContent = "Added to Cart!";
-      addToCartButton.style.backgroundColor = "#4caf50";
-
-      // DELAY CLOSE MODAL
+      // Close modal after a short delay
       setTimeout(() => {
         restoreBodyScroll();
-        document.querySelector(".bundle-modal").remove();
-      }, 1500);
-    } else {
-      throw new Error(result.message || "Failed to add bundle to cart");
+        document.querySelector(".bundle-modal")?.remove();
+      }, 1200);
     }
-  } catch (error) {
-    console.log("Error adding bundle to cart: ", error);
-    alert("There was an error adding the bundle to cart. Please try again.");
 
-    addToCartButton.disabled = false;
-    addToCartButton.textContent = originalText;
-    addToCartButton.style.backgroundColor = "";
+
+  } catch (err) {
+    console.error("Error adding bundle to cart:", err);
+    alert("Error adding bundle. Please try again.");
+    addBtn.disabled = false;
+    addBtn.textContent = originalText;
+    addBtn.style.backgroundColor = "";
   }
 }
+
 
 async function debugCartState() {
   try {
@@ -704,4 +744,31 @@ function restoreBodyScroll() {
     window.scrollTo(0, parseInt(scrollY));
   }
   
+}
+
+async function refreshCartBadge() {
+  try {
+    const res  = await fetch('/cart.js');
+    const cart = await res.json();               // { item_count: X, … }
+    const icon = document.getElementById('cart-icon-bubble');
+    if (!icon) return;
+
+    let bubble = icon.querySelector('.cart-count-bubble');
+    if (cart.item_count > 0) {
+      if (!bubble) {
+        bubble = document.createElement('div');
+        bubble.className = 'cart-count-bubble';
+        const num = document.createElement('span');
+        num.setAttribute('aria-hidden', 'true');
+        bubble.appendChild(num);
+        icon.appendChild(bubble);
+      }
+      const numSpan = bubble.querySelector('span[aria-hidden="true"]');
+      if (numSpan) numSpan.textContent = cart.item_count;
+    } else {
+      bubble?.remove();
+    }
+  } catch (e) {
+    console.error('refreshCartBadge error', e);
+  }
 }
