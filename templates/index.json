@@ -9,52 +9,54 @@
  */
 {
   "sections": {
-    "image_with_text_EtEzTt": {
-      "type": "image-with-text",
+    "image_banner_ayKqmF": {
+      "type": "image-banner",
       "blocks": {
-        "heading_3taAkN": {
+        "heading_LRUqUc": {
           "type": "heading",
           "settings": {
-            "heading": "Discover Gifts for Dad",
+            "heading": "<strong>Our Vitamin C 'Glow Duo' Boosts skin's radiance by 30%</strong>",
             "heading_size": "h1"
           }
         },
-        "text_ELHeWU": {
+        "text_QbnwxA": {
           "type": "text",
+          "disabled": true,
           "settings": {
-            "text": "<p>*ONLINE EXCLUSIVES</p>",
+            "text": "Give customers details about the banner image(s) or content on the template.",
             "text_style": "body"
           }
         },
-        "button_RPPQfU": {
-          "type": "button",
+        "buttons_PNYMqq": {
+          "type": "buttons",
           "settings": {
-            "button_label": "SHOP GIFTS",
-            "button_link": "shopify://collections/all",
-            "button_style_secondary": false
+            "button_label_1": "SHOP VITAMIN C",
+            "button_link_1": "shopify://collections/vitamin-c",
+            "button_style_secondary_1": false,
+            "button_label_2": "",
+            "button_link_2": "",
+            "button_style_secondary_2": false
           }
         }
       },
       "block_order": [
-        "heading_3taAkN",
-        "text_ELHeWU",
-        "button_RPPQfU"
+        "heading_LRUqUc",
+        "text_QbnwxA",
+        "buttons_PNYMqq"
       ],
-      "name": "Banner",
+      "name": "t:sections.image-banner.presets.name",
       "settings": {
-        "image": "shopify://shop_images/Preview-23Q4_GIFTING_MOMENTS_FATHERS_DAY_1080x1350_INAHBKV015.webp",
-        "height": "medium",
-        "desktop_image_width": "medium",
-        "layout": "image_first",
+        "image": "shopify://shop_images/25Q2_VitC_GlowDuo_DT_INAIZDH010.webp",
+        "image_overlay_opacity": 0,
+        "image_height": "adapt",
         "image_behavior": "none",
-        "content_layout": "no-overlap",
-        "desktop_content_position": "middle",
-        "desktop_content_alignment": "center",
-        "mobile_content_alignment": "center",
-        "section_color_scheme": "scheme-1",
-        "color_scheme": "scheme-d51e215d-79bd-4459-b6bf-230f03a42083",
-        "padding_top": 36,
-        "padding_bottom": 36
+        "desktop_content_position": "middle-left",
+        "desktop_content_alignment": "left",
+        "show_text_box": false,
+        "color_scheme": "scheme-6cc3c0a2-9b64-4337-9a2d-44ec37c63945",
+        "stack_images_on_mobile": true,
+        "mobile_content_alignment": "left",
+        "show_text_below": false
       }
     },
     "rich_text_xkR9Dy": {
@@ -90,6 +92,7 @@
         "text_jnY8tp",
         "button_6y8rtf"
       ],
+      "disabled": true,
       "name": "Deals",
       "settings": {
         "desktop_content_position": "center",
@@ -379,10 +382,56 @@
         "padding_top": 36,
         "padding_bottom": 36
       }
+    },
+    "multi_column_alt_aDK4Hm": {
+      "type": "multi-column-alt",
+      "blocks": {
+        "column_f6Htft": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/TBS_Brighton_SHEA.webp",
+            "title": "<strong>Head to store</strong>",
+            "text": "<p>The Body Shop's friendly, knowledgeable team will be on-hand to help you explore and experience products and offer expert advice.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "column_JhTbEe": {
+          "type": "column",
+          "settings": {
+            "image": "shopify://shop_images/03-23Q4-CORP-GIFTS-200pc-DT.webp",
+            "title": "<strong>E-Gift Cards</strong>",
+            "text": "<p>Struggling to find the perfect match? Our E-Gift Cards take the guesswork out of gift giving, and are available in a range of cute designs.</p>",
+            "link_label": "Buy a card",
+            "link": "shopify://products/e-gift-card-1"
+          }
+        }
+      },
+      "block_order": [
+        "column_f6Htft",
+        "column_JhTbEe"
+      ],
+      "name": "Multi-column Alternative",
+      "settings": {
+        "title": "More ways to shop...",
+        "heading_size": "h2",
+        "image_width": "full",
+        "image_ratio": "adapt",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 2,
+        "column_alignment": "center",
+        "background_style": "none",
+        "color_scheme": "",
+        "columns_mobile": "1",
+        "swipe_on_mobile": true,
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
     }
   },
   "order": [
-    "image_with_text_EtEzTt",
+    "image_banner_ayKqmF",
     "rich_text_xkR9Dy",
     "featured_collection_zxgLgL",
     "rich_text_XYWMQj",
@@ -390,6 +439,7 @@
     "collection_list_hqAaRq",
     "collage_t3DK6e",
     "featured_collection_yzgdLL",
-    "multicolumn_NHrMR4"
+    "multicolumn_NHrMR4",
+    "multi_column_alt_aDK4Hm"
   ]
 }
